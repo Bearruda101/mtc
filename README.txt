@@ -2,83 +2,64 @@
 
 local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yhx/kwargs_Ui_Library/main/source.lua"))()
 
-local UI = Lib:Create{
-    Theme = "Dark", -- or any other theme
-    Size = UDim2.new(0, 555, 0, 400) -- default
- }
- 
- local Main = UI:Tab{
-    Name = "inicio"
- }
- 
- local Divider = Main:Divider{
-    Name = "inicio shit"
- }
- 
- local QuitDivider = Main:Divider{
-    Name = "sair"
- }
- 
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
+
+-- Variáveis
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
 local userInputService = game:GetService("UserInputService")
-local radarGui = script.Parent -- A GUI onde você quer mostrar os jogadores
 
-local isESPActive = false
-local radarRange = 50
+-- Referências para a UI
+local screenGui = script.Parent
+local frame = screenGui:WaitForChild("Frame")
+local toggleButton = frame:WaitForChild("TextButton")
 
--- Função para mostrar o marcador de um jogador
-local function createPlayerMarker(player)
-    local character = player.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude
-        if distance <= radarRange then
-            local playerMarker = Instance.new("Frame")
-            playerMarker.Size = UDim2.new(0, 10, 0, 10)
-            playerMarker.Position = UDim2.new(0, (character.HumanoidRootPart.Position.X - localPlayer.Character.HumanoidRootPart.Position.X) / radarRange * 100, 
-                                               0, (character.HumanoidRootPart.Position.Z - localPlayer.Character.HumanoidRootPart.Position.Z) / radarRange * 100)
-            playerMarker.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            playerMarker.Parent = radarGui
-        end
+-- Estado inicial
+local isUiVisible = true
+local isInfiniteJumpActive = false
+
+-- Função para esconder/exibir a UI ao pressionar Ctrl
+local function toggleUiVisibility(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.LeftControl then
+        isUiVisible = not isUiVisible
+        frame.Visible = isUiVisible
     end
 end
 
--- Função para ativar/desativar o ESP com base nas teclas M/N
-local function toggleESP(input)
-    if input.KeyCode == Enum.KeyCode.M then
-        isESPActive = true
-        print("ESP Ativado!")
-    elseif input.KeyCode == Enum.KeyCode.N then
-        isESPActive = false
-        print("ESP Desativado!")
+-- Função para ativar/desativar o pulo infinito
+local function toggleInfiniteJump()
+    isInfiniteJumpActive = not isInfiniteJumpActive
+    
+    -- Alterar cor do botão conforme o estado
+    if isInfiniteJumpActive then
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Azul (Ativado)
+        toggleButton.Text = "Pulo Infinito Ativado"
+    else
+        toggleButton.BackgroundColor3 = Color3.fromRGB(169, 169, 169)  -- Cinza (Desativado)
+        toggleButton.Text = "Pulo Infinito Desativado"
     end
 end
 
--- Conectar a função de input de teclado
-userInputService.InputBegan:Connect(toggleESP)
-
--- Função para atualizar o radar
-local function updateRadar()
-    if isESPActive then
-        -- Limpar o radar antes de atualizar
-        for _, child in pairs(radarGui:GetChildren()) do
-            if child:IsA("Frame") then
-                child:Destroy()
-            end
+-- Função para implementar o pulo infinito
+local function infiniteJump()
+    while isInfiniteJumpActive do
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.Jump = true
+            wait(0.1) -- Aguarda um pouco antes de pular novamente
         end
-        
-        -- Verificar todos os jogadores
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= localPlayer then
-                createPlayerMarker(player)
-            end
-        end
+        wait(0.1)
     end
 end
 
--- Atualizar radar periodicamente
-while true do
-    updateRadar()
-    wait(1) -- Atualiza a cada segundo
-end
+-- Conectar a função de pressionar a tecla Ctrl
+userInputService.InputBegan:Connect(toggleUiVisibility)
+
+-- Ação do botão
+toggleButton.MouseButton1Click:Connect(function()
+    toggleInfiniteJump() -- Alterna o estado do pulo infinito
+    if isInfiniteJumpActive then
+        -- Começa a pular infinitamente
+        infiniteJump()
+    end
+end)
 
