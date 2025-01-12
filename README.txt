@@ -2,10 +2,8 @@
 
 local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yhx/kwargs_Ui_Library/main/source.lua"))()
 
-
 -- Variáveis
 local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
 local userInputService = game:GetService("UserInputService")
 
 -- Referências para a UI
@@ -25,11 +23,11 @@ local function toggleUiVisibility(input)
     end
 end
 
--- Função para ativar/desativar o pulo infinito
+-- Função para alternar o botão e ativar/desativar o pulo infinito
 local function toggleInfiniteJump()
     isInfiniteJumpActive = not isInfiniteJumpActive
-    
-    -- Alterar cor do botão conforme o estado
+
+    -- Alterar a cor do botão conforme o estado
     if isInfiniteJumpActive then
         toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Azul (Ativado)
         toggleButton.Text = "Pulo Infinito Ativado"
@@ -63,3 +61,15 @@ toggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Definir o tamanho e formato da UI (Frame e Botão)
+frame.Size = UDim2.new(0, 200, 0, 200)  -- Tamanho quadrado da UI
+frame.Position = UDim2.new(0.5, -100, 0.5, -100)  -- Centraliza a UI na tela
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- Cor de fundo da UI
+
+toggleButton.Size = UDim2.new(0, 180, 0, 50)  -- Tamanho do botão
+toggleButton.Position = UDim2.new(0, 10, 0, 75)  -- Posição do botão dentro da UI
+toggleButton.BackgroundColor3 = Color3.fromRGB(169, 169, 169)  -- Cor cinza (desativado)
+toggleButton.Text = "Pulo Infinito Desativado"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Cor do texto
+toggleButton.Font = Enum.Font.SourceSans
+toggleButton.TextSize = 20
